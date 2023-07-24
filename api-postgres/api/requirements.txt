@@ -1,3 +1,4 @@
 flask
 pytest
 psycopg2
+gunicorn
