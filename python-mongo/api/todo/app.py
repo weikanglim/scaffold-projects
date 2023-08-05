@@ -1,4 +1,5 @@
 import motor
+import certifi
 from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
 from beanie import init_beanie
 from fastapi import FastAPI
@@ -57,7 +58,8 @@ app.add_middleware(
 
 if settings.APPLICATIONINSIGHTS_CONNECTION_STRING:
     exporter = AzureMonitorTraceExporter.from_connection_string(
-        settings.APPLICATIONINSIGHTS_CONNECTION_STRING
+        settings.APPLICATIONINSIGHTS_CONNECTION_STRING,
+
     )
     tracerProvider = TracerProvider(
         resource=Resource({SERVICE_NAME: settings.APPLICATIONINSIGHTS_ROLENAME})
@@ -66,13 +68,13 @@ if settings.APPLICATIONINSIGHTS_CONNECTION_STRING:
 
     FastAPIInstrumentor.instrument_app(app, tracer_provider=tracerProvider)
 
-
 from . import routes  # NOQA
 
 @app.on_event("startup")
 async def startup_event():
     client = motor.motor_asyncio.AsyncIOMotorClient(
-        settings.AZURE_COSMOS_CONNECTION_STRING
+        settings.AZURE_COSMOS_CONNECTION_STRING,
+        tlsCAFile=certifi.where(),
     )
     await init_beanie(
         database=client[settings.AZURE_COSMOS_DATABASE_NAME],
