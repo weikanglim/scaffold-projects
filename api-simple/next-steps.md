@@ -37,7 +37,7 @@ Each bicep file declares resources to be provisioned. The resources are provisio
 - [shared/monitoring.bicep](./infra/shared/monitoring.bicep) - Azure Log Analytics workspace and Application Insights to log and store instrumentation logs.
 - [shared/registry.bicep](./infra/shared/registry.bicep) - Azure Container Registry to store docker images.
 
-More information about [bicep](https://aka.ms/bicep).
+More information about [Bicep](https://aka.ms/bicep).
 
 ### Billing
 
