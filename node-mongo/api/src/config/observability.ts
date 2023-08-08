@@ -1,7 +1,4 @@
-import * as applicationInsights from "applicationinsights";
-import { ObservabilityConfig } from "./appConfig";
 import winston from "winston";
-import { ApplicationInsightsTransport } from "./applicationInsightsTransport";
 
 export enum LogLevel {
     Error = "error",
@@ -15,52 +12,25 @@ export const logger = winston.createLogger({
     level: "info",
     format: winston.format.json(),
     transports: [
+    //
+    // - Write all logs with importance level of `error` or less to `error.log`
+    // - Write all logs with importance level of `info` or less to `combined.log`
+    //
         new winston.transports.File({ filename: "error.log", level: "error" }),
+        new winston.transports.File({ filename: "combined.log" }),
     ],
     exceptionHandlers: [
         new winston.transports.File({ filename: "exceptions.log" }),
     ]
 });
 
-export const observability = (config: ObservabilityConfig) => {
-    // Append App Insights to the winston logger
-    logger.defaultMeta = {
-        app: config.roleName
-    };
-
-    try {
-        applicationInsights
-            .setup(config.connectionString)
-            .setAutoDependencyCorrelation(true)
-            .setAutoCollectRequests(true)
-            .setAutoCollectPerformance(true, true)
-            .setAutoCollectExceptions(true)
-            .setAutoCollectDependencies(true)
-            .setAutoCollectConsole(true)
-            .setUseDiskRetryCaching(true)
-            .setSendLiveMetrics(true)
-            .setDistributedTracingMode(applicationInsights.DistributedTracingModes.AI_AND_W3C);
-
-        applicationInsights.defaultClient.context.tags[applicationInsights.defaultClient.context.keys.cloudRole] = config.roleName;
-        applicationInsights.defaultClient.setAutoPopulateAzureProperties(true);
-        applicationInsights.start();
-
-        const applicationInsightsTransport = new ApplicationInsightsTransport({
-            client: applicationInsights.defaultClient,
-            level: LogLevel.Information,
-            handleExceptions: true, // Handles node unhandled exceptions
-            handleRejections: true, // Handles node promise rejections
-        });
-
-        logger.add(applicationInsightsTransport);
-        logger.info("Added ApplicationInsights logger transport");
-    } catch (err) {
-        logger.error(`ApplicationInsights setup failed, ensure environment variable 'APPLICATIONINSIGHTS_CONNECTION_STRING' has been set. Error: ${err}`);
-    }
-};
-
+//
+// If we're not in production then log to the `console` with the format:
+// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+//
 if (process.env.NODE_ENV !== "production") {
     logger.add(new winston.transports.Console({
-        format: winston.format.simple()
+        format: winston.format.simple(),
+        handleExceptions: true,
     }));
 }

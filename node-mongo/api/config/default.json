@@ -2,9 +2,5 @@
     "database": {
         "connectionString": "",
         "databaseName": "Todo"
-    },
-    "observability": {
-        "connectionString": "",
-        "roleName": "API"
     }
 }

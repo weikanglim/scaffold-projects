@@ -1,10 +1,6 @@
 {
     "database": {
-        "connectionString": "AZURE_COSMOS_CONNECTION_STRING",
-        "databaseName": "AZURE_COSMOS_DATABASE_NAME"
-    },
-    "observability": {
-        "connectionString": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-        "roleName": "APPLICATIONINSIGHTS_ROLE_NAME"
+        "connectionString": "MONGODB_CONNECTION_STRING",
+        "databaseName": "MONGODB_DATABASE_NAME"
     }
 }
