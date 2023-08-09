@@ -4,7 +4,6 @@ import { TodoList } from "../models";
 import { ListService } from "../services/listService";
 import { ActionTypes } from "./common";
 import config from "../config"
-import { trackEvent } from "../services/telemetryService";
 import { ActionMethod, createPayloadAction, PayloadAction } from "./actionCreators";
 
 const listService = new ListService(config.api.baseUrl, '/lists');
@@ -43,8 +42,6 @@ export const save = (list: TodoList): ActionMethod<TodoList> => async (dispatch:
     const newList = await listService.save(list);
 
     dispatch(saveListAction(newList));
-
-    trackEvent(ActionTypes.SAVE_TODO_LIST.toString());
 
     return newList;
 }

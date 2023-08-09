@@ -5,6 +5,7 @@ import { getConfig } from "./config";
 import lists from "./routes/lists";
 import items from "./routes/items";
 import { configureMongoose } from "./models/mongoose";
+import cors from "cors";
 
 export const createApp = async (): Promise<Express> => {
     const config = await getConfig();
@@ -13,6 +14,10 @@ export const createApp = async (): Promise<Express> => {
     // Configuration
     await configureMongoose(config.database);
     app.use(express.json());
+
+    app.use(cors({
+        origin: "*"
+    }));
 
     // API Routes
     app.use("/lists/:listId/items", items);
