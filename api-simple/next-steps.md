@@ -1,7 +1,13 @@
-
 # Next Steps
 
-## 1. Define environment variables for running services
+## Table of Contents
+1. [Next Steps](#next-steps)
+2. [What was added](#what-was-added)
+3. [Billing](#billing)
+4. [Troubleshooting](#troubleshooting)
+
+## Next Steps
+### Define environment variables for running services
 
 Modify or add environment variables to configure the running application. Environment variables can be configured by modifying the `env` node in the following files:
 
@@ -9,15 +15,13 @@ Modify or add environment variables to configure the running application. Enviro
 
 To define a secret as an environment variable, the secret can first be stored in KeyVault.
 
-## 2. Provision infrastructure and deploy application code
+### Provision infrastructure and deploy application code
 
-Run `azd up` to run the end-to-end infrastructure provisioning (`azd provision`) and code deployment (`azd deploy`) flow. Visit the service endpoints listed to see your application up-and-running!
+Run `azd up` to provision your infrastructure and deploy to Azure in one step (or run `azd provision` then `azd deploy` to accomplish the taks separately). Visit the service endpoints from the command outut to see your application up-and-running!
 
 Note: To troubleshoot any issues, see [troubleshooting](#troubleshooting).
 
-## Details
-
-### What was added
+## What was added
 
 To describe the infrastructure and application, `azure.yaml` along with Infrastructure as Code files using Bicep were added with the following directory structure:
 
@@ -39,11 +43,13 @@ Each bicep file declares resources to be provisioned. The resources are provisio
 
 More information about [Bicep](https://aka.ms/bicep).
 
-### Billing
+If your project does not contain a Dockerfile, we will use [Buildpacks](https://buildpacks.io/) to create an image for the services in `azure.yaml` and get your containerized app onto Azure. 
+
+## Billing
 
 Visit the *Cost Management + Billing* page in Azure Portal to track current spend. For more information about how you're billed, and how you can monitor the costs incurred in your Azure subscriptions, visit [billing overview](https://learn.microsoft.com/en-us/azure/developer/intro/azure-developer-billing).
 
-### Troubleshooting
+## Troubleshooting
 
 Q: I visited the service endpoint listed, and I'm seeing a blank or error page.
 
