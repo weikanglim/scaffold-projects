@@ -30,19 +30,39 @@ resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   tags: tags
 }
 
-module monitoring './core/monitor/monitoring.bicep' = {
+module monitoring './shared/monitoring.bicep' = {
   name: 'monitoring'
   params: {
     location: location
     tags: tags
     logAnalyticsName: '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
     applicationInsightsName: '${abbrs.insightsComponents}${resourceToken}'
-    applicationInsightsDashboardName: '${abbrs.portalDashboards}${resourceToken}'
   }
   scope: rg
 }
 
-module keyVault './core/security/keyvault.bicep' = {
+module dashboard './shared/dashboard-web.bicep' = {
+  name: 'dashboard'
+  params: {
+    name: '${abbrs.portalDashboards}${resourceToken}'
+    applicationInsightsName: monitoring.outputs.applicationInsightsName
+    location: location
+    tags: tags
+  }
+  scope: rg
+}
+
+module registry './shared/registry.bicep' = {
+  name: 'registry'
+  params: {
+    location: location
+    tags: tags
+    name: '${abbrs.containerRegistryRegistries}${resourceToken}'
+  }
+  scope: rg
+}
+
+module keyVault './shared/keyvault.bicep' = {
   name: 'keyvault'
   params: {
     location: location
@@ -52,19 +72,16 @@ module keyVault './core/security/keyvault.bicep' = {
   scope: rg
 }
 
-// Container apps host (including container registry)
-module containerApps './core/host/container-apps.bicep' = {
-  name: 'container-apps'
-  scope: rg
+module appsEnv './shared/apps-env.bicep' = {
+  name: 'apps-env'
   params: {
-    name: 'app'
+    name: '${abbrs.appManagedEnvironments}${resourceToken}'
     location: location
     tags: tags
-    containerAppsEnvironmentName: '${abbrs.appManagedEnvironments}${resourceToken}'
-    containerRegistryName: '${abbrs.containerRegistryRegistries}${resourceToken}'
-    logAnalyticsWorkspaceName: monitoring.outputs.logAnalyticsWorkspaceName
     applicationInsightsName: monitoring.outputs.applicationInsightsName
+    logAnalyticsWorkspaceName: monitoring.outputs.logAnalyticsWorkspaceName
   }
+  scope: rg
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
@@ -91,12 +108,12 @@ module api './app/api.bicep' = {
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
     applicationInsightsName: monitoring.outputs.applicationInsightsName
-    containerAppsEnvironmentName: containerApps.outputs.environmentName
-    containerRegistryName: containerApps.outputs.registryName
+    containerAppsEnvironmentName: appsEnv.outputs.name
+    containerRegistryName: registry.outputs.name
     exists: apiExists
     cosmosDbConnectionString: vault.getSecret(cosmosDb.outputs.connectionStringKey)
     allowedOrigins: [
-      'https://${abbrs.appContainerApps}web-${resourceToken}.${containerApps.outputs.defaultDomain}'
+      'https://${abbrs.appContainerApps}web-${resourceToken}.${appsEnv.outputs.domain}'
     ]
   }
   scope: rg
@@ -110,8 +127,8 @@ module web './app/web.bicep' = {
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}web-${resourceToken}'
     applicationInsightsName: monitoring.outputs.applicationInsightsName
-    containerAppsEnvironmentName: containerApps.outputs.environmentName
-    containerRegistryName: containerApps.outputs.registryName
+    containerAppsEnvironmentName: appsEnv.outputs.name
+    containerRegistryName: registry.outputs.name
     exists: webExists
     apiUrls: [
       api.outputs.uri
@@ -120,4 +137,4 @@ module web './app/web.bicep' = {
   scope: rg
 }
 
-output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.outputs.registryLoginServer
+output AZURE_CONTAINER_REGISTRY_ENDPOINT string = registry.outputs.loginServer
