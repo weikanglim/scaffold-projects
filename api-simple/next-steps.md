@@ -17,7 +17,7 @@ To define a secret as an environment variable, the secret can first be stored in
 
 ### Provision infrastructure and deploy application code
 
-Run `azd up` to provision your infrastructure and deploy to Azure in one step (or run `azd provision` then `azd deploy` to accomplish the taks separately). Visit the service endpoints from the command outut to see your application up-and-running!
+Run `azd up` to provision your infrastructure and deploy to Azure in one step (or run `azd provision` then `azd deploy` to accomplish the tasks separately). Visit the service endpoints from the command outut to see your application up-and-running!
 
 Note: To troubleshoot any issues, see [troubleshooting](#troubleshooting).
 
@@ -56,12 +56,12 @@ Q: I visited the service endpoint listed, and I'm seeing a blank or error page.
 A: Your service may have failed to start or misconfigured. To investigate further:
 
 1. Click on the resource group link shown to visit Azure Portal.
-1. Navigate to the specific Azure Container App resource for the service.
-1. Select *Monitoring -> Log stream* under the navigation pane.
-1. Observe the log output to identify any errors.
-1. If there are no errors, ensure that the ingress port matches the port that your service listens on:
+2. Navigate to the specific Azure Container App resource for the service.
+3. Select *Monitoring -> Log stream* under the navigation pane.
+4. Observe the log output to identify any errors.
+5. If there are no errors, ensure that the ingress port matches the port that your service listens on:
     1. Under *Settings -> Ingress*, ensure the *Target port* matches the desired port.
-    1. After modifying this setting, ensure the setting is also updated in the local bicep configuration file.
+    2. After modifying this setting, ensure the setting is also updated in the local bicep configuration file.
 
 For additional information about setting up your `azd` project, visit our official [docs](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/make-azd-compatible?pivots=azd-convert).
 
